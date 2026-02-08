@@ -1,0 +1,4 @@
+node_modules
+.output
+dist
+public/config.js
