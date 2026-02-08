@@ -1,5 +1,5 @@
-# Stage 1: Build the React application
-FROM node:20-alpine AS builder
+# Stage 1: Build the application
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -10,23 +10,23 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Build the application
+# Accept build-time API URL for Vite
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+# Build the application (TanStack Start + Nitro outputs to .output/)
 RUN npm run build
 
-# Stage 2: Serve with Nginx
-FROM nginx:alpine
+# Stage 2: Run the Nitro server
+FROM node:22-alpine
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Copy custom Nginx configuration (optional, for SPA routing)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy the built output from builder
+COPY --from=builder /app/.output .output
 
-# Copy entrypoint script
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+ENV PORT=3000
 
-EXPOSE 80
+EXPOSE 3000
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", ".output/server/index.mjs"]

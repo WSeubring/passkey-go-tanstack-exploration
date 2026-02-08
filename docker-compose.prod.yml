@@ -28,10 +28,11 @@ services:
       - "traefik.http.services.passkey-api.loadbalancer.server.port=8080"
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: https://passkey.wseubring.nl
     container_name: passkey-frontend
-    environment:
-      - VITE_API_BASE_URL=https://passkey.wseubring.nl
     depends_on:
       backend:
         condition: service_healthy
@@ -44,7 +45,7 @@ services:
       - "traefik.http.routers.passkey.entrypoints=websecure"
       - "traefik.http.routers.passkey.tls=true"
       - "traefik.http.routers.passkey.tls.certresolver=myresolver"
-      - "traefik.http.services.passkey.loadbalancer.server.port=80"
+      - "traefik.http.services.passkey.loadbalancer.server.port=3000"
       # Lower priority so /api routes go to backend
       - "traefik.http.routers.passkey.priority=1"
 
