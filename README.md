@@ -10,9 +10,7 @@ A full-stack demo application exploring **Passkey (WebAuthn) authentication** wi
 ┌─────────────────┐         ┌─────────────────┐
 │    Frontend      │  REST   │    Backend       │
 │  React/TanStack  │◄──────►│  Go + WebAuthn   │
-│  (port 3000)     │         │  (port 8080)     │
-│                  │         │                  │
-│  Nginx (Docker)  │         │  SQLite          │
+│  Start + Nitro   │         │  SQLite          │
 └─────────────────┘         └─────────────────┘
 ```
 
@@ -35,7 +33,7 @@ A full-stack demo application exploring **Passkey (WebAuthn) authentication** wi
 **Infrastructure**
 - Docker with multi-stage builds
 - Docker Compose for orchestration
-- Nginx for production frontend serving
+- Traefik for production reverse proxy + TLS
 
 ## Getting Started
 
@@ -105,8 +103,7 @@ The dev server starts on port 3000.
 │   │   ├── hooks/         # Passkey auth + utility hooks
 │   │   └── lib/           # Utilities
 │   ├── public/            # Static assets
-│   ├── Dockerfile         # Multi-stage Node build -> Nginx
-│   ├── nginx.conf         # SPA routing config
+│   ├── Dockerfile         # Multi-stage Node build + Nitro server
 │   ├── package.json
 │   └── vite.config.ts
 ├── docker-compose.yml     # Service orchestration
