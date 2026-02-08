@@ -50,6 +50,9 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	mux.HandleFunc("/api/login", app.passwordLoginHandler)
 	mux.HandleFunc("/api/auth/register/begin", app.registerBegin)
 	mux.HandleFunc("/api/auth/register/finish", app.registerFinish)
