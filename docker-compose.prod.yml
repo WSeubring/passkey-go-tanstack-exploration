@@ -1,0 +1,56 @@
+services:
+  backend:
+    build: ./backend
+    container_name: passkey-backend
+    environment:
+      - PORT=8080
+      - RP_ID=passkey.wseubring.nl
+      - RP_ORIGIN=https://passkey.wseubring.nl
+      - RP_DISPLAY_NAME=Passkey Demo
+      - DB_PATH=/data/auth.db
+    volumes:
+      - passkey_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/login"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.passkey-api.rule=Host(`passkey.wseubring.nl`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.passkey-api.entrypoints=websecure"
+      - "traefik.http.routers.passkey-api.tls=true"
+      - "traefik.http.routers.passkey-api.tls.certresolver=myresolver"
+      - "traefik.http.services.passkey-api.loadbalancer.server.port=8080"
+
+  frontend:
+    build: ./frontend
+    container_name: passkey-frontend
+    environment:
+      - VITE_API_BASE_URL=https://passkey.wseubring.nl
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.passkey.rule=Host(`passkey.wseubring.nl`)"
+      - "traefik.http.routers.passkey.entrypoints=websecure"
+      - "traefik.http.routers.passkey.tls=true"
+      - "traefik.http.routers.passkey.tls.certresolver=myresolver"
+      - "traefik.http.services.passkey.loadbalancer.server.port=80"
+      # Lower priority so /api routes go to backend
+      - "traefik.http.routers.passkey.priority=1"
+
+networks:
+  web:
+    external: true
+
+volumes:
+  passkey_data:
