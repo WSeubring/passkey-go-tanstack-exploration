@@ -2,6 +2,8 @@
 
 A full-stack demo application exploring **Passkey (WebAuthn) authentication** with a Go backend and a React/TanStack frontend. Features an interactive animated visualization of the passkey registration and login flows.
 
+**Live demo:** https://passkey.wseubring.nl
+
 ## Architecture
 
 ```
